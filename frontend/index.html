@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ultra AI Builder</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #eef3f9; }
+        input, button { padding: 10px; margin: 5px; width: 300px; }
+        iframe { width: 100%; height: 500px; border: 1px solid #ccc; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Ultra AI Builder</h1>
+    <input id="command" placeholder="Type command: Build me an alarm app">
+    <input id="projectName" placeholder="Project name">
+    <input id="customURL" placeholder="Optional: custom URL">
+    <br>
+    <button onclick="generate()">Generate</button>
+    <button onclick="run()">Run / Preview</button>
+    <button onclick="deploy()">Deploy</button>
+
+    <iframe id="preview"></iframe>
+
+    <script>
+        async function generate(){
+            const topic = document.getElementById("command").value;
+            const project = document.getElementById("projectName").value || "generated_app";
+            const res = await fetch("/generate", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topic, project })
+            });
+            const data = await res.json();
+            alert("Generated using: " + data.plugin_used);
+        }
+
+        async function run(){
+            const project = document.getElementById("projectName").value || "generated_app";
+            document.getElementById("preview").src = "/run/" + project;
+        }
+
+        async function deploy(){
+            const project = document.getElementById("projectName").value || "generated_app";
+            const customURL = document.getElementById("customURL").value;
+            const res = await fetch("/deploy/custom_live", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ project, url: customURL })
+            });
+            const data = await res.json();
+            alert("Deploy status: " + JSON.stringify(data));
+        }
+    </script>
+</body>
+</html>
